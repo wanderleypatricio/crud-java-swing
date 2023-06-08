@@ -8,10 +8,12 @@ package crud.java;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -19,12 +21,33 @@ import javax.swing.JOptionPane;
  */
 public class ControleProdutos extends javax.swing.JFrame {
 
-    /**
-     * Creates new form ControleProdutos
-     */
+    DefaultTableModel dtm = new DefaultTableModel(null, 
+            new String[]{"Código","Produto","Preço","Estoque"});
+
     public ControleProdutos() {
         initComponents();
         setLocationRelativeTo(null);
+        tbProdutos.setModel(dtm);
+        preencheTabela();
+    }
+    
+    public void preencheTabela(){
+        try{
+            String sql = "select * from produtos";
+            Connection con = getConnection();
+            PreparedStatement stm = con.prepareStatement(sql);
+            ResultSet rs = stm.executeQuery();
+            while(rs.next()){
+                dtm.addRow(new String[]{
+                    String.valueOf(rs.getLong("codigo")),
+                    rs.getString("produto"),
+                    String.valueOf(rs.getDouble("preco")),
+                    String.valueOf(rs.getInt("estoque"))
+                });
+            }
+        }catch(SQLException ex){
+            System.out.println("ERROR: "+ ex.getMessage());
+        }
     }
     
     public Connection getConnection(){
@@ -32,7 +55,7 @@ public class ControleProdutos extends javax.swing.JFrame {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost/infor3_2023",
+                    "jdbc:mysql://localhost/crudjava",
                     "root","");
             return con;
         } catch (ClassNotFoundException | SQLException ex) {
@@ -40,6 +63,7 @@ public class ControleProdutos extends javax.swing.JFrame {
         }
         return null;
     }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -179,6 +203,28 @@ public class ControleProdutos extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
+        long codigo = Long.parseLong(txtCodigo.getText());
+        String produto = txtProduto.getText();
+        double preco = Double.parseDouble(txtPreco.getText());
+        int estoque = Integer.parseInt(txtEstoque.getText());
+        
+        String sql = "insert into produtos values(?,?,?,?)";
+        
+        Connection con = getConnection();
+        PreparedStatement stm;
+        try {
+            stm = con.prepareStatement(sql);
+            stm.setLong(1, codigo);
+            stm.setString(2, produto);
+            stm.setDouble(3, preco);
+            stm.setInt(4, estoque);
+            if(stm.executeUpdate() > 0){
+                JOptionPane.showMessageDialog(null, 
+                        "Cadastro realizado com sucesso!");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ControleProdutos.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
     }//GEN-LAST:event_btnSalvarActionPerformed
 
