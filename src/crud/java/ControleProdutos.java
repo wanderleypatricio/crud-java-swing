@@ -104,6 +104,11 @@ public class ControleProdutos extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tbProdutos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tbProdutosMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tbProdutos);
 
         jLabel1.setText("Pesquisa:");
@@ -126,8 +131,18 @@ public class ControleProdutos extends javax.swing.JFrame {
         });
 
         btnAlterar.setText("Alterar");
+        btnAlterar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAlterarActionPerformed(evt);
+            }
+        });
 
         btnExcluir.setText("Excluir");
+        btnExcluir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExcluirActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -225,8 +240,70 @@ public class ControleProdutos extends javax.swing.JFrame {
         } catch (SQLException ex) {
             Logger.getLogger(ControleProdutos.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+        if(tbProdutos.getRowCount() > 0){
+            while(tbProdutos.getRowCount() > 0){
+                dtm.removeRow(0);
+            }
+        }
+        preencheTabela();
     }//GEN-LAST:event_btnSalvarActionPerformed
+
+    private void tbProdutosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbProdutosMouseClicked
+        int linha = tbProdutos.getSelectedRow();
+        txtCodigo.setText((String) tbProdutos.getValueAt(linha, 0));
+        txtProduto.setText((String) tbProdutos.getValueAt(linha, 1));
+        txtPreco.setText((String) tbProdutos.getValueAt(linha, 2));
+        txtEstoque.setText((String) tbProdutos.getValueAt(linha, 3));
+    }//GEN-LAST:event_tbProdutosMouseClicked
+
+    private void btnAlterarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAlterarActionPerformed
+        long codigo = Long.parseLong(txtCodigo.getText());
+        String produto = txtProduto.getText();
+        double preco = Double.parseDouble(txtPreco.getText());
+        int estoque = Integer.parseInt(txtEstoque.getText());
+        
+        String sql = "update produtos set produto = ?"
+                + ", preco = ?, estoque = ? where codigo = ?";
+        
+        Connection con = getConnection();
+        PreparedStatement stm;
+        try {
+            stm = con.prepareStatement(sql);
+            stm.setString(1, produto);
+            stm.setDouble(2, preco);
+            stm.setInt(3, estoque);
+            stm.setLong(4, codigo);
+            if(stm.executeUpdate() > 0){
+                JOptionPane.showMessageDialog(null, 
+                        "Alteração realizada com sucesso!");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ControleProdutos.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        if(tbProdutos.getRowCount() > 0){
+            while(tbProdutos.getRowCount() > 0){
+                dtm.removeRow(0);
+            }
+        }
+        preencheTabela();
+    }//GEN-LAST:event_btnAlterarActionPerformed
+
+    private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExcluirActionPerformed
+        long codigo = Long.parseLong(txtCodigo.getText());
+        String sql = "delete from produtos where codigo = ?";
+        Connection con = getConnection();
+        try {
+            PreparedStatement stm = con.prepareStatement(sql);
+            stm.setLong(1, codigo);
+            if(stm.executeUpdate() > 0){
+                JOptionPane.showMessageDialog(null, 
+                        "Registro excluído com sucesso!");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ControleProdutos.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnExcluirActionPerformed
 
     /**
      * @param args the command line arguments
