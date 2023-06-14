@@ -302,7 +302,13 @@ public class ControleProdutos extends javax.swing.JFrame {
             }
         } catch (SQLException ex) {
             Logger.getLogger(ControleProdutos.class.getName()).log(Level.SEVERE, null, ex);
+        }        
+        if(tbProdutos.getRowCount() > 0){
+            while(tbProdutos.getRowCount() > 0){
+                dtm.removeRow(0);
+            }
         }
+        preencheTabela();
     }//GEN-LAST:event_btnExcluirActionPerformed
 
     /**
