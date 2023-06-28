@@ -113,6 +113,12 @@ public class ControleProdutos extends javax.swing.JFrame {
 
         jLabel1.setText("Pesquisa:");
 
+        txtPesquisa.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtPesquisaKeyPressed(evt);
+            }
+        });
+
         jLabel2.setText("Código:");
 
         jLabel3.setText("Produto:");
@@ -122,6 +128,11 @@ public class ControleProdutos extends javax.swing.JFrame {
         jLabel5.setText("Estoque:");
 
         btnNovo.setText("Novo");
+        btnNovo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNovoActionPerformed(evt);
+            }
+        });
 
         btnSalvar.setText("Salvar");
         btnSalvar.addActionListener(new java.awt.event.ActionListener() {
@@ -310,6 +321,38 @@ public class ControleProdutos extends javax.swing.JFrame {
         }
         preencheTabela();
     }//GEN-LAST:event_btnExcluirActionPerformed
+
+    private void txtPesquisaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPesquisaKeyPressed
+        String pesquisa = txtPesquisa.getText();
+        String sql = "select * from produtos where produto like '%"+pesquisa+"%'";
+        Connection con = getConnection();
+        try {
+            PreparedStatement stm = con.prepareStatement(sql);
+            ResultSet rs = stm.executeQuery();
+            if(tbProdutos.getRowCount() > 0){
+                while(tbProdutos.getRowCount() > 0){
+                    dtm.removeRow(0);
+                }
+            }
+            while(rs.next()){
+                dtm.addRow(new String[]{
+                    String.valueOf(rs.getLong("codigo")),
+                    rs.getString("produto"),
+                    String.valueOf(rs.getDouble("preco")),
+                    String.valueOf(rs.getInt("estoque"))
+                });
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ControleProdutos.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_txtPesquisaKeyPressed
+
+    private void btnNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNovoActionPerformed
+        txtCodigo.setText("");
+        txtEstoque.setText("");
+        txtPreco.setText("");
+        txtProduto.setText("");
+    }//GEN-LAST:event_btnNovoActionPerformed
 
     /**
      * @param args the command line arguments
